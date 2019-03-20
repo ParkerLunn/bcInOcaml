@@ -1,0 +1,137 @@
+# dune runtest
+# OCAMLPARAM: unset
+$ /usr/bin/getconf _NPROCESSORS_ONLN > /var/folders/bh/3s5yyyn91hvf2h6rpzdghfpm0000gn/T/duned903ca.output 2> /dev/null
+$ /usr/local/bin/ocamlc.opt -config > /var/folders/bh/3s5yyyn91hvf2h6rpzdghfpm0000gn/T/dune583c3b.output
+$ (cd _build/default && .ppx/ee93aa23970957971ccb6244b7dba29b/ppx.exe --cookie 'library-name="bc"' -o bc.pp.ml --impl bc.ml -corrected-suffix .ppx-corrected -diff-cmd - -dump-ast)
+$ (cd _build/default && /usr/local/bin/ocamldep.opt -modules -impl bc.pp.ml) > _build/default/.bc.objs/bc.pp.ml.d
+$ (cd _build/default && /usr/local/bin/ocamlc.opt -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -bin-annot -I .bc.objs/byte -I /Users/Parker/.opam/default/lib/base -I /Users/Parker/.opam/default/lib/base/caml -I /Users/Parker/.opam/default/lib/base/md5 -I /Users/Parker/.opam/default/lib/base/shadow_stdlib -I /Users/Parker/.opam/default/lib/base_bigstring -I /Users/Parker/.opam/default/lib/base_quickcheck -I /Users/Parker/.opam/default/lib/bin_prot -I /Users/Parker/.opam/default/lib/bin_prot/shape -I /Users/Parker/.opam/default/lib/core -I /Users/Parker/.opam/default/lib/core_kernel -I /Users/Parker/.opam/default/lib/core_kernel/base_for_tests -I /Users/Parker/.opam/default/lib/fieldslib -I /Users/Parker/.opam/default/lib/jane-street-headers -I /Users/Parker/.opam/default/lib/parsexp -I /Users/Parker/.opam/default/lib/ppx_assert/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_bench/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_compare/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_enumerate/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_expect/collector -I /Users/Parker/.opam/default/lib/ppx_expect/common -I /Users/Parker/.opam/default/lib/ppx_expect/config -I /Users/Parker/.opam/default/lib/ppx_hash/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_inline_test/config -I /Users/Parker/.opam/default/lib/ppx_inline_test/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_module_timer/runtime -I /Users/Parker/.opam/default/lib/ppx_sexp_conv/runtime-lib -I /Users/Parker/.opam/default/lib/sexplib -I /Users/Parker/.opam/default/lib/sexplib/unix -I /Users/Parker/.opam/default/lib/sexplib0 -I /Users/Parker/.opam/default/lib/spawn -I /Users/Parker/.opam/default/lib/splittable_random -I /Users/Parker/.opam/default/lib/stdio -I /Users/Parker/.opam/default/lib/time_now -I /Users/Parker/.opam/default/lib/typerep -I /Users/Parker/.opam/default/lib/variantslib -I /usr/local/lib/ocaml/threads -no-alias-deps -opaque -o .bc.objs/byte/bc.cmo -c -impl bc.pp.ml)
+> File "bc.ml", line 108, characters 24-26:
+> Warning 3: deprecated: Core.==
+> [since 2014-10] Use [phys_equal]
+> File "bc.ml", line 112, characters 50-208:
+> Warning 8: this pattern-matching is not exhaustive.
+> Here is an example of a case that is not matched:
+> (Op1 (_, _)|Fct (_, _))
+> File "bc.ml", line 132, characters 26-37:
+> Warning 3: deprecated: Core.print_float
+> [since 2016-04] Use [Out_channel.output_string stdout]
+> File "bc.ml", line 69, characters 6-8:
+> Warning 27: unused variable hd.
+> File "bc.ml", line 66, characters 18-23:
+> Warning 27: unused variable float.
+> File "bc.ml", line 67, characters 18-19:
+> Warning 11: this match case is unused.
+> File "bc.ml", line 71, characters 18-23:
+> Warning 27: unused variable float.
+> File "bc.ml", line 72, characters 18-19:
+> Warning 11: this match case is unused.
+> File "bc.ml", line 127, characters 6-14:
+> Warning 11: this match case is unused.
+$ (cd _build/default && /usr/local/bin/ocamlopt.opt -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -I .bc.objs/byte -I .bc.objs/native -I /Users/Parker/.opam/default/lib/base -I /Users/Parker/.opam/default/lib/base/caml -I /Users/Parker/.opam/default/lib/base/md5 -I /Users/Parker/.opam/default/lib/base/shadow_stdlib -I /Users/Parker/.opam/default/lib/base_bigstring -I /Users/Parker/.opam/default/lib/base_quickcheck -I /Users/Parker/.opam/default/lib/bin_prot -I /Users/Parker/.opam/default/lib/bin_prot/shape -I /Users/Parker/.opam/default/lib/core -I /Users/Parker/.opam/default/lib/core_kernel -I /Users/Parker/.opam/default/lib/core_kernel/base_for_tests -I /Users/Parker/.opam/default/lib/fieldslib -I /Users/Parker/.opam/default/lib/jane-street-headers -I /Users/Parker/.opam/default/lib/parsexp -I /Users/Parker/.opam/default/lib/ppx_assert/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_bench/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_compare/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_enumerate/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_expect/collector -I /Users/Parker/.opam/default/lib/ppx_expect/common -I /Users/Parker/.opam/default/lib/ppx_expect/config -I /Users/Parker/.opam/default/lib/ppx_hash/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_inline_test/config -I /Users/Parker/.opam/default/lib/ppx_inline_test/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_module_timer/runtime -I /Users/Parker/.opam/default/lib/ppx_sexp_conv/runtime-lib -I /Users/Parker/.opam/default/lib/sexplib -I /Users/Parker/.opam/default/lib/sexplib/unix -I /Users/Parker/.opam/default/lib/sexplib0 -I /Users/Parker/.opam/default/lib/spawn -I /Users/Parker/.opam/default/lib/splittable_random -I /Users/Parker/.opam/default/lib/stdio -I /Users/Parker/.opam/default/lib/time_now -I /Users/Parker/.opam/default/lib/typerep -I /Users/Parker/.opam/default/lib/variantslib -I /usr/local/lib/ocaml/threads -intf-suffix .ml -no-alias-deps -opaque -o .bc.objs/native/bc.cmx -c -impl bc.pp.ml)
+> File "bc.ml", line 108, characters 24-26:
+> Warning 3: deprecated: Core.==
+> [since 2014-10] Use [phys_equal]
+> File "bc.ml", line 112, characters 50-208:
+> Warning 8: this pattern-matching is not exhaustive.
+> Here is an example of a case that is not matched:
+> (Op1 (_, _)|Fct (_, _))
+> File "bc.ml", line 132, characters 26-37:
+> Warning 3: deprecated: Core.print_float
+> [since 2016-04] Use [Out_channel.output_string stdout]
+> File "bc.ml", line 69, characters 6-8:
+> Warning 27: unused variable hd.
+> File "bc.ml", line 66, characters 18-23:
+> Warning 27: unused variable float.
+> File "bc.ml", line 67, characters 18-19:
+> Warning 11: this match case is unused.
+> File "bc.ml", line 71, characters 18-23:
+> Warning 27: unused variable float.
+> File "bc.ml", line 72, characters 18-19:
+> Warning 11: this match case is unused.
+> File "bc.ml", line 127, characters 6-14:
+> Warning 11: this match case is unused.
+$ (cd _build/default && /usr/local/bin/ocamlopt.opt -w @a-4-29-40-41-42-44-45-48-58-59-60-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -a -o bc.cmxa .bc.objs/native/bc.cmx)
+$ (cd _build/default && /usr/local/bin/ocamlopt.opt -w -24 -o .bc.inline-tests/run.exe -linkall -I /Users/Parker/.opam/default/lib/base -I /Users/Parker/.opam/default/lib/base/caml -I /Users/Parker/.opam/default/lib/base/md5 -I /Users/Parker/.opam/default/lib/base/shadow_stdlib -I /Users/Parker/.opam/default/lib/base_bigstring -I /Users/Parker/.opam/default/lib/base_quickcheck -I /Users/Parker/.opam/default/lib/bin_prot -I /Users/Parker/.opam/default/lib/bin_prot/shape -I /Users/Parker/.opam/default/lib/core -I /Users/Parker/.opam/default/lib/core_kernel -I /Users/Parker/.opam/default/lib/core_kernel/base_for_tests -I /Users/Parker/.opam/default/lib/fieldslib -I /Users/Parker/.opam/default/lib/jane-street-headers -I /Users/Parker/.opam/default/lib/parsexp -I /Users/Parker/.opam/default/lib/ppx_assert/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_bench/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_compare/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_enumerate/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_expect/collector -I /Users/Parker/.opam/default/lib/ppx_expect/common -I /Users/Parker/.opam/default/lib/ppx_expect/config -I /Users/Parker/.opam/default/lib/ppx_expect/evaluator -I /Users/Parker/.opam/default/lib/ppx_expect/matcher -I /Users/Parker/.opam/default/lib/ppx_hash/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_inline_test/config -I /Users/Parker/.opam/default/lib/ppx_inline_test/runner/lib -I /Users/Parker/.opam/default/lib/ppx_inline_test/runtime-lib -I /Users/Parker/.opam/default/lib/ppx_module_timer/runtime -I /Users/Parker/.opam/default/lib/ppx_sexp_conv/runtime-lib -I /Users/Parker/.opam/default/lib/ppxlib/print_diff -I /Users/Parker/.opam/default/lib/re -I /Users/Parker/.opam/default/lib/seq -I /Users/Parker/.opam/default/lib/sexplib -I /Users/Parker/.opam/default/lib/sexplib/unix -I /Users/Parker/.opam/default/lib/sexplib0 -I /Users/Parker/.opam/default/lib/spawn -I /Users/Parker/.opam/default/lib/splittable_random -I /Users/Parker/.opam/default/lib/stdio -I /Users/Parker/.opam/default/lib/time_now -I /Users/Parker/.opam/default/lib/typerep -I /Users/Parker/.opam/default/lib/variantslib -I /usr/local/lib/ocaml/threads -I . /Users/Parker/.opam/default/lib/base/caml/caml.cmxa /Users/Parker/.opam/default/lib/sexplib0/sexplib0.cmxa /Users/Parker/.opam/default/lib/base/shadow_stdlib/shadow_stdlib.cmxa /Users/Parker/.opam/default/lib/base/base.cmxa /Users/Parker/.opam/default/lib/ppx_compare/runtime-lib/ppx_compare_lib.cmxa /Users/Parker/.opam/default/lib/ppx_sexp_conv/runtime-lib/ppx_sexp_conv_lib.cmxa /Users/Parker/.opam/default/lib/ppx_hash/runtime-lib/ppx_hash_lib.cmxa /Users/Parker/.opam/default/lib/ppx_enumerate/runtime-lib/ppx_enumerate_lib.cmxa /Users/Parker/.opam/default/lib/fieldslib/fieldslib.cmxa /Users/Parker/.opam/default/lib/ppx_assert/runtime-lib/ppx_assert_lib.cmxa /Users/Parker/.opam/default/lib/ppx_bench/runtime-lib/ppx_bench_lib.cmxa /Users/Parker/.opam/default/lib/ppx_inline_test/config/inline_test_config.cmxa /Users/Parker/.opam/default/lib/ppx_inline_test/runtime-lib/ppx_inline_test_lib.cmxa /Users/Parker/.opam/default/lib/splittable_random/splittable_random.cmxa /Users/Parker/.opam/default/lib/base_quickcheck/base_quickcheck.cmxa /Users/Parker/.opam/default/lib/ppx_expect/common/expect_test_common.cmxa /Users/Parker/.opam/default/lib/ppx_expect/config/expect_test_config.cmxa /Users/Parker/.opam/default/lib/ppx_expect/collector/expect_test_collector.cmxa /Users/Parker/.opam/default/lib/variantslib/variantslib.cmxa /Users/Parker/.opam/default/lib/typerep/typerep_lib.cmxa /Users/Parker/.opam/default/lib/stdio/stdio.cmxa /Users/Parker/.opam/default/lib/jane-street-headers/jane_street_headers.cmxa /Users/Parker/.opam/default/lib/time_now/time_now.cmxa /Users/Parker/.opam/default/lib/ppx_module_timer/runtime/ppx_module_timer_runtime.cmxa /Users/Parker/.opam/default/lib/base/md5/md5_lib.cmxa /usr/local/lib/ocaml/unix.cmxa /usr/local/lib/ocaml/bigarray.cmxa /Users/Parker/.opam/default/lib/bin_prot/shape/bin_shape_lib.cmxa /Users/Parker/.opam/default/lib/bin_prot/bin_prot.cmxa /Users/Parker/.opam/default/lib/base_bigstring/base_bigstring.cmxa /Users/Parker/.opam/default/lib/core_kernel/base_for_tests/base_for_tests.cmxa /Users/Parker/.opam/default/lib/parsexp/parsexp.cmxa /Users/Parker/.opam/default/lib/sexplib/sexplib.cmxa /Users/Parker/.opam/default/lib/core_kernel/core_kernel.cmxa /Users/Parker/.opam/default/lib/sexplib/unix/sexplib_unix.cmxa /usr/local/lib/ocaml/threads/threads.cmxa /Users/Parker/.opam/default/lib/spawn/spawn.cmxa /Users/Parker/.opam/default/lib/core/core.cmxa bc.cmxa /Users/Parker/.opam/default/lib/ppx_inline_test/runner/lib/ppx_inline_test_runner_lib.cmxa /Users/Parker/.opam/default/lib/re/re.cmxa /Users/Parker/.opam/default/lib/ppx_expect/matcher/expect_test_matcher.cmxa /Users/Parker/.opam/default/lib/ppxlib/print_diff/ppxlib_print_diff.cmxa /Users/Parker/.opam/default/lib/ppx_expect/evaluator/ppx_expect_evaluator.cmxa .bc.inline-tests/.bc.inline-tests.eobjs/native/run.cmx)
+$ (cd _build/default && .bc.inline-tests/run.exe inline-test-runner bc -source-tree-root . -diff-cmd -)
+$ (cd _build/default && /usr/bin/diff -u bc.ml bc.ml.corrected)
+> --- bc.ml	2019-03-20 15:47:41.000000000 -0400
+> +++ bc.ml.corrected	2019-03-20 15:47:42.000000000 -0400
+> @@ -161,7 +161,24 @@
+>  
+>  let%expect_test "p1" =
+>      evalCode p1 [];
+> -    [%expect {| 1. |}]
+> +    [%expect.unreachable]
+> +[@@expect.uncaught_exn {|
+> +  (* CR expect_test_collector: This test expectation appears to contain a backtrace.
+> +     This is strongly discouraged as backtraces are fragile.
+> +     Please change this test to not include a backtrace. *)
+> +
+> +  Not_found
+> +  Raised at file "hashtbl.ml", line 194, characters 13-28
+> +  Called from file "bc.ml", line 70, characters 18-78
+> +  Called from file "bc.ml", line 139, characters 29-41
+> +  Called from file "bc.ml" (inlined), line 126, characters 26-46
+> +  Called from file "bc.ml", line 146, characters 12-42
+> +  Called from file "bc.ml", line 163, characters 4-18
+> +  Called from file "collector/expect_test_collector.ml", line 225, characters 12-19
+> +
+> +  Trailing output
+> +  ---------------
+> +  1.1.1. |}]
+>  
+>  (*
+>      v = 1.0;
+> @@ -192,7 +209,25 @@
+>  
+>  let%expect_test "p1" =
+>      evalCode p2 []; 
+> -    [%expect {| 3628800. |}]
+> +    [%expect.unreachable]
+> +[@@expect.uncaught_exn {|
+> +  (* CR expect_test_collector: This test expectation appears to contain a backtrace.
+> +     This is strongly discouraged as backtraces are fragile.
+> +     Please change this test to not include a backtrace. *)
+> +
+> +  Not_found
+> +  Raised at file "hashtbl.ml", line 194, characters 13-28
+> +  Called from file "bc.ml", line 70, characters 18-78
+> +  Called from file "bc.ml", line 116, characters 34-50
+> +  Called from file "bc.ml", line 134, characters 23-35
+> +  Called from file "bc.ml" (inlined), line 126, characters 26-46
+> +  Called from file "bc.ml", line 146, characters 12-42
+> +  Called from file "bc.ml", line 194, characters 4-18
+> +  Called from file "collector/expect_test_collector.ml", line 225, characters 12-19
+> +
+> +  Trailing output
+> +  ---------------
+> +  1.1.1. |}]
+>  
+>  (*  Fibbonaci sequence
+>      define f(x) {
+> @@ -222,10 +257,20 @@
+>  
+>  let%expect_test "p3" =
+>      evalCode p3 []; 
+> -    [%expect {| 
+> -        2. 
+> -        5.      
+> -    |}]
+> +    [%expect.unreachable]
+> +[@@expect.uncaught_exn {|
+> +  (* CR expect_test_collector: This test expectation appears to contain a backtrace.
+> +     This is strongly discouraged as backtraces are fragile.
+> +     Please change this test to not include a backtrace. *)
+> +
+> +  "Match_failure bc.ml:112:50"
+> +  Raised at file "bc.ml", line 112, characters 50-208
+> +  Called from file "bc.ml", line 139, characters 29-41
+> +  Called from file "bc.ml", line 126, characters 26-46
+> +  Called from file "bc.ml" (inlined), line 126, characters 50-64
+> +  Called from file "bc.ml", line 146, characters 12-42
+> +  Called from file "bc.ml", line 224, characters 4-18
+> +  Called from file "collector/expect_test_collector.ml", line 225, characters 12-19 |}]
+>  
+>  
+>  
+[1]
