@@ -26,7 +26,7 @@ type statement =
     | Expr of expr
     | If of expr*statement list * statement list
     | While of expr*statement list
-    | For of statement*expr*statement*statement list
+    | For of statement * expr * statement * statement list
     | Break of string
     | Continue of string
     | Ret
@@ -43,24 +43,12 @@ type env = (string, float) Stdlib.Hashtbl.t ;;(* variable list*)
 
 type envQueue = env list ;;(*variable list stack*)
 
-(* let get_key (a,_) = a
-
-let get (k:string) (l:env) = List.Assoc.find ~equal:String.equal l k
-
-let remove (k: string) (m: env) : env = List.filter m (fun x -> not(String.equal (get_key x) k)) *)
-
-(* let put (k:string) (v:float) (st:envQueue) : envQueue = match st with
-    | q::[] ->  ((k,v)::(remove k q))::st
-    | q::tl ->  match (get k q) with
-                 | Some(flt) -> ((k,v)::(remove k q))::st
-                 | None      -> q::((k,v)::(remove k (List.hd(List.rev tl)))) *)
-
 let store (k:string) (v:float) (q:envQueue) : envQueue =  
     Stdlib.Hashtbl.add (Stdlib.List.hd(Stdlib.List.rev q)) k v ;
     q;
 ;;
 
-let varEval (k: string) (q:envQueue) : float  = match q with
+let varEval (k: string) (q:envQueue) : float  = try ( match q with
     | hd::[] -> ( 
             match Stdlib.Hashtbl.find hd k with
                 | float ->  Stdlib.Hashtbl.find hd k
@@ -71,7 +59,8 @@ let varEval (k: string) (q:envQueue) : float  = match q with
                 | float -> Stdlib.Hashtbl.find (Stdlib.List.hd(Stdlib.List.rev tl)) k
                 | _ -> 0.
             )
-    | _ -> 0.
+    | _ -> 0.)
+    with Not_found -> 0.
 ;;
 
 
@@ -83,7 +72,7 @@ let%expect_test "getvar" =
     [%expect {| 1. |}]
 
 
-let%expect_test "getvar" = 
+let%expect_test "getar" = 
     let my_hash = Stdlib.Hashtbl.create 2 in
     Stdlib.Hashtbl.add my_hash "two" 2.;
     varEval "two" [my_hash] |>
@@ -91,11 +80,21 @@ let%expect_test "getvar" =
     [%expect {| 2. |}]
 ;;
 
-let evalOp1 (s: string) (op1: float) : float =
+let evalOp1 (s: string) (e: expr) (q:envQueue) : float =
     match s with    
-        | "++" -> op1+.1.
-        | "--" -> op1-.1.
-        | _ -> 0.0
+        | "++" -> ( 
+            match e with
+                | Var(v) -> let f = (varEval v q) in 
+                            let q = (store v (f+.1.) q) in f;
+                | _ -> failwith "must call increment on a variable"; 
+             )
+        | "--" -> ( 
+            match e with
+                | Var(v) -> let f = (varEval v q) in 
+                            let q = (store v (f-.1.) q) in f;
+                | _ -> failwith "must call increment on a variable"; 
+             )
+        | _ -> failwith "must call increment on a variable"; 
 ;;
 
 let evalOp2 (s: string) (op1: float) (op2: float) : float =
@@ -105,23 +104,26 @@ let evalOp2 (s: string) (op1: float) (op2: float) : float =
         | "*" -> op1*.op2
         | "/" -> op1/.op2
         | "^" -> op1**op2
-        | "==" -> if(op1==op2) then 1. else 0.
+        | "==" -> if(op1=op2) then 1. else 0.
         | _ -> 0.0
 ;;
 
 let rec evalExpr (e: expr) (q:envQueue): float  = match e with
     | Num(flt) -> flt 
     | Var(v) -> varEval v q
-    (* | Op1(s,expr) -> *)
-    | Op2(s,ex1,ex2) -> evalOp2 s (evalExpr ex1 q) (evalExpr ex2 q)
+    | Op1(s,expr) -> evalOp1 s expr q
+    | Op2(s,ex1,ex2) -> let f = evalOp2 s (evalExpr ex1 q) (evalExpr ex2 q) in printf "%F" f; f
     (* | Fct -> *)
 ;;
+
 (* Test for expression *)
 let%expect_test "evalNum" = 
     evalExpr (Num 10.0) [] |>
     printf "%F";
     [%expect {| 10. |}]
 
+(* let runFor (e:expr) (inc:expr) (code:block) : envQueue = *)
+    
 let rec evalBlock (code: block) (q:envQueue): envQueue = match code with
     | stat::tl -> let q = evalStatement stat q in evalBlock tl q;
     | stat::[] -> evalStatement stat q;
@@ -129,7 +131,7 @@ let rec evalBlock (code: block) (q:envQueue): envQueue = match code with
 
 and evalStatement (s: statement) (q:envQueue) : envQueue =
     match s with 
-        | Assign(v, e) -> print_float(evalExpr e q); store v (evalExpr e q) q;
+        | Assign(v, e) -> store v (evalExpr e q) q;
         | If(e, codeT, codeF) -> 
             let cond = evalExpr e q in
                 if(cond>0.0) then
@@ -137,48 +139,50 @@ and evalStatement (s: statement) (q:envQueue) : envQueue =
                 else
                     evalBlock codeF q
         | Expr(e) -> let f = evalExpr e q in printf "%F" f ; q
+        (* | For(ass, e, inc, code) -> let q = evalStatement ass q in
+                                    runFor e inc code q              *)
         | _ -> q (*ignore *)
 ;;
 
 let rec evalCode (code: block) (q:envQueue): unit =
     (* create new environment *)
-    let currLocal = Stdlib.Hashtbl.create 1000 in
-    let q = evalBlock code (q@[currLocal]) in
+    (* let currLocal = Stdlib.Hashtbl.create 1000 in
+    let q = evalBlock code (q@[currLocal]) in *)
     match code with 
         | state::tl -> let q = evalStatement state q in evalCode tl q
-        | [] -> print_endline "done"
+        | [] -> print_endline ""
     (* function state list *)
     (* pop the local environment *)
 ;;
 (* 
-    v = 10; 
+    v = 1; 
     v // display v
  *)
+let p4: block = [
+        Assign("v", Num(1.0));
+        Expr(Op1("++", (Var "v")));
+        Expr(Var("v")) 
+]
+
+let%expect_test "incVar" =
+    let my_hash = Stdlib.Hashtbl.create 5 in
+    evalCode p4 [my_hash];
+    [%expect {| 1.2. |}]
+
+(* v=1
+   v++
+   v
+*)
 let p1: block = [
         Assign("v", Num(1.0));
+
         Expr(Var("v")) 
 ]
 
 let%expect_test "p1" =
-    evalCode p1 [];
-    [%expect.unreachable]
-[@@expect.uncaught_exn {|
-  (* CR expect_test_collector: This test expectation appears to contain a backtrace.
-     This is strongly discouraged as backtraces are fragile.
-     Please change this test to not include a backtrace. *)
-
-  Not_found
-  Raised at file "hashtbl.ml", line 194, characters 13-28
-  Called from file "bc.ml", line 70, characters 18-78
-  Called from file "bc.ml", line 139, characters 29-41
-  Called from file "bc.ml" (inlined), line 126, characters 26-46
-  Called from file "bc.ml", line 146, characters 12-42
-  Called from file "bc.ml", line 163, characters 4-18
-  Called from file "collector/expect_test_collector.ml", line 225, characters 12-19
-
-  Trailing output
-  ---------------
-  1.1.1. |}]
+    let my_hash = Stdlib.Hashtbl.create 5 in
+    evalCode p1 [my_hash];
+    [%expect {| 1. |}]
 
 (*
     v = 1.0;
@@ -207,7 +211,7 @@ let p2: block = [
     Expr(Var("v"))
 ]
 
-let%expect_test "p1" =
+let%expect_test "p2" =
     evalCode p2 []; 
     [%expect.unreachable]
 [@@expect.uncaught_exn {|
@@ -215,19 +219,13 @@ let%expect_test "p1" =
      This is strongly discouraged as backtraces are fragile.
      Please change this test to not include a backtrace. *)
 
-  Not_found
-  Raised at file "hashtbl.ml", line 194, characters 13-28
-  Called from file "bc.ml", line 70, characters 18-78
-  Called from file "bc.ml", line 116, characters 34-50
-  Called from file "bc.ml", line 134, characters 23-35
-  Called from file "bc.ml" (inlined), line 126, characters 26-46
-  Called from file "bc.ml", line 146, characters 12-42
-  Called from file "bc.ml", line 194, characters 4-18
-  Called from file "collector/expect_test_collector.ml", line 225, characters 12-19
-
-  Trailing output
-  ---------------
-  1.1.1. |}]
+  (Failure hd)
+  Raised at file "stdlib.ml", line 33, characters 17-33
+  Called from file "list.ml" (inlined), line 27, characters 10-23
+  Called from file "bc.ml", line 47, characters 23-58
+  Called from file "bc.ml", line 152, characters 31-52
+  Called from file "bc.ml", line 215, characters 4-18
+  Called from file "collector/expect_test_collector.ml", line 225, characters 12-19 |}]
 
 (*  Fibbonaci sequence
     define f(x) {
@@ -263,13 +261,11 @@ let%expect_test "p3" =
      This is strongly discouraged as backtraces are fragile.
      Please change this test to not include a backtrace. *)
 
-  "Match_failure bc.ml:112:50"
-  Raised at file "bc.ml", line 112, characters 50-208
-  Called from file "bc.ml", line 139, characters 29-41
-  Called from file "bc.ml", line 126, characters 26-46
-  Called from file "bc.ml" (inlined), line 126, characters 50-64
-  Called from file "bc.ml", line 146, characters 12-42
-  Called from file "bc.ml", line 224, characters 4-18
+  "Match_failure bc.ml:111:50"
+  Raised at file "bc.ml", line 111, characters 50-247
+  Called from file "bc.ml", line 141, characters 29-41
+  Called from file "bc.ml", line 152, characters 31-52
+  Called from file "bc.ml", line 245, characters 4-18
   Called from file "collector/expect_test_collector.ml", line 225, characters 12-19 |}]
 
 
