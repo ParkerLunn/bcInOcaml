@@ -2,16 +2,19 @@
 (* times and plus(commutative), put constants as first arguments and combine subsequently *)
 open Core
 
+(* Top-level expression *)
 type sExpr = 
     | Atom of string
     | List of sExpr list
 ;;
 
+(* Our floats, prints an error if not given a float *)
 type value = 
     | Float of float
     | Error of string
 ;;
 
+(* Allows for basic arithmetic *)
 type expr = 
     | Num of float
     | Var of string
@@ -20,6 +23,7 @@ type expr =
     | Fct of string * expr list
 ;;
 
+(* Statements for the BC language *)
 type statement = 
     | Assign of string*expr
     | Return of expr
@@ -29,20 +33,26 @@ type statement =
     | For of statement * expr * statement * statement list
     | Break of string
     | Continue of string
-    | Ret
     | Error of string
     | FctDef of string * string list * statement list 
 ;;
 
+(* Contains any number of statements *)
 type block = statement list ;;
 
+(* Environments for storing variables *)
 type env = (string, float) Stdlib.Hashtbl.t ;;(* variable list*)
 (* Stdlib.Hashtbl.add my_hash "h" "hello";
 # Stdlib.Hashtbl.find my_hash "h";;
 # Stdlib.Hashtbl.remove my_hash "h";; *)
 
+(* Stack of environments / scopes *)
 type envQueue = env list ;;(*variable list stack*)
 
+exception Cont
+exception Brk
+
+(* Stores value (v) with name (k) and returns q *)
 let store (k:string) (v:float) (q:envQueue) : envQueue =  
     Stdlib.Hashtbl.add (Stdlib.List.hd(Stdlib.List.rev q)) k v ;
     q;
@@ -54,8 +64,8 @@ let varEval (k: string) (q:envQueue) : float  = try ( match q with
                 | float ->  Stdlib.Hashtbl.find hd k
                 | _ -> 0. 
             )
-    | hd::tl -> (
-            match (Stdlib.Hashtbl.find (Stdlib.List.hd(Stdlib.List.rev tl)) k)  with
+    | _::tl -> (
+            match (Stdlib.Hashtbl.find (Stdlib.List.hd (Stdlib.List.rev tl)) k)  with
                 | float -> Stdlib.Hashtbl.find (Stdlib.List.hd(Stdlib.List.rev tl)) k
                 | _ -> 0.
             )
@@ -97,6 +107,23 @@ let evalOp1 (s: string) (e: expr) (q:envQueue) : float =
         | _ -> failwith "must call increment on a variable"; 
 ;;
 
+let evalOp1 (s: string) (e: expr) (q:envQueue) : float =
+    match s with    
+        | "++" -> ( 
+            match e with
+                | Var(v) -> let f = (varEval v q) in 
+                            let q = (store v (f+.1.) q) in f;
+                | _ -> failwith "must call increment on a variable"; 
+             )
+        | "--" -> ( 
+            match e with
+                | Var(v) -> let f = (varEval v q) in 
+                            let q = (store v (f-.1.) q) in f;
+                | _ -> failwith "must call increment on a variable"; 
+             )
+        | _ -> failwith "must call increment on a variable"; 
+;;
+
 let evalOp2 (s: string) (op1: float) (op2: float) : float =
     match s with    
         | "+" -> op1+.op2
@@ -104,7 +131,11 @@ let evalOp2 (s: string) (op1: float) (op2: float) : float =
         | "*" -> op1*.op2
         | "/" -> op1/.op2
         | "^" -> op1**op2
-        | "==" -> if(op1=op2) then 1. else 0.
+        | "==" -> if(op1==op2) then 1. else 0.
+        | ">" -> if(op1>op2) then 1. else 0.
+        | "<" -> if(op1<op2) then 1. else 0.
+        | ">=" -> if(op1>=op2) then 1. else 0.
+        | "<=" -> if(op1<=op2) then 1. else 0.
         | _ -> 0.0
 ;;
 
@@ -122,9 +153,33 @@ let%expect_test "evalNum" =
     printf "%F";
     [%expect {| 10. |}]
 
-(* let runFor (e:expr) (inc:expr) (code:block) : envQueue = *)
-    
-let rec evalBlock (code: block) (q:envQueue): envQueue = match code with
+    (* While loop implementation *)
+let rec while_loop (e: expr) (code: block) (q:envQueue) : envQueue =
+    let cond = evalExpr e q in
+        if(cond>0.0) then (* evalute code block *)
+            try (
+                let q = evalBlock code q in
+                while_loop e code q
+            )
+            with Cont -> while_loop e code q
+            | Brk -> q
+        else
+            q;
+
+and for_loop (e: expr) (inc: statement) (code: block) (q:envQueue) : envQueue =
+    let cond = evalExpr e q in
+        if(cond>0.0) then
+            try (
+                let q = evalBlock code q in
+                let q = evalStatement inc q in 
+                for_loop e inc code q
+            )
+            with Cont -> (let q = evalStatement inc q in for_loop e inc code q;)
+            | Brk -> q
+        else
+            q;
+
+and evalBlock (code: block) (q:envQueue): envQueue = match code with
     | stat::tl -> let q = evalStatement stat q in evalBlock tl q;
     | stat::[] -> evalStatement stat q;
     | _        -> q;
@@ -139,8 +194,11 @@ and evalStatement (s: statement) (q:envQueue) : envQueue =
                 else
                     evalBlock codeF q
         | Expr(e) -> let f = evalExpr e q in printf "%F" f ; q
-        (* | For(ass, e, inc, code) -> let q = evalStatement ass q in
-                                    runFor e inc code q              *)
+        | While(e, code) -> while_loop e code q
+        | For(assign, e, inc, code) -> let q = evalStatement assign q in
+                                    for_loop e inc code q
+        | Break(s) -> raise Brk
+        | Continue(s) -> raise Cont
         | _ -> q (*ignore *)
 ;;
 
@@ -202,7 +260,7 @@ let p2: block = [
         [For(
             Assign("i", Num(2.0)),
             Op2("<", Var("i"), Num(10.0)),
-            Expr(Op1("a++", Var("i"))),
+            Expr(Op1("++", Var("i"))),
             [
                 Assign("v", Op2("*", Var("v"), Var("i")))
             ]
@@ -212,7 +270,8 @@ let p2: block = [
 ]
 
 let%expect_test "p2" =
-    evalCode p2 []; 
+    let currLocal = Stdlib.Hashtbl.create 1000 in
+    evalCode p2 [currLocal];
     [%expect {| 3628800. |}]
 
 (*  Fibbonaci sequence
@@ -248,5 +307,17 @@ let%expect_test "p3" =
         5.      
     |}]
 
+let p4: block = 
+    [
+        Assign("v",Num(0.0));
+        While(
+            Op2("<=", Var("v"), Num(3.0)),
+            [Assign("v", Op2("+", Var("v"), Num(1.0)))]
+        );
+        Expr(Var("v"))
+    ]
 
-
+let%expect_test "p4" =
+    let currLocal = Stdlib.Hashtbl.create 1000 in
+    evalCode p4 [currLocal];
+    [%expect {| 4. |}]
